@@ -1,0 +1,7 @@
+{
+  "name": "NeuralVision Research Interface",
+  "description": "A frontend interface for comparing computer vision architectures (ViT, ResNet, EfficientNet).",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
