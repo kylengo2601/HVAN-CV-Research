@@ -1,19 +1,22 @@
 export enum ModelArchitecture {
-  ViT = 'Vision Transformer (ViT-H/14)',
-  ResNet = 'ResNet-152',
-  EfficientNet = 'EfficientNet-B7'
+  VIT = 'Vision Transformer (ViT-H/14)',
+  RESNET = 'ResNet-152',
+  EFFICIENTNET = 'EfficientNet-B7',
 }
 
 export interface AnalysisResult {
-  predictedClass: string;
-  confidence: string;
-  features: string[];
-  architecturalInsight: string;
-  rawAnalysis: string;
+  name: string;
+  // modelSpecifics: {
+  //   processingTimeMs: number;
+  //   embeddingVector: number[];
+  //   technicalLog: string;
+  //   architectureNotes: string;
+  // };
+  confidence: number;
 }
 
-export interface ImageState {
-  base64: string;
-  mimeType: string;
-  previewUrl: string;
+export interface AnalysisState {
+  isLoading: boolean;
+  result: AnalysisResult | null;
+  error: string | null;
 }

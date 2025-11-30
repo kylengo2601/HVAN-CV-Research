@@ -1,6 +1,6 @@
 {
-  "name": "NeuralVision Research Interface",
-  "description": "A frontend interface for comparing computer vision architectures (ViT, ResNet, EfficientNet).",
+  "name": "NeuroFace ID",
+  "description": "Bảng điều khiển nhận diện khuôn mặt nâng cao cho phép người dùng chọn giữa các kiến trúc Vision Transformer, ResNet-152 và EfficientNet-B7 để phân tích hình ảnh, được hỗ trợ bởi Gemini.",
   "requestFramePermissions": [
     "camera"
   ]
