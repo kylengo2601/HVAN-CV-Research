@@ -5,7 +5,7 @@ import os
 
 
 def preprocess_input(input_path):
-    new_image_path = '/resource/test_faces/test_1.jpg' # placeholder input path
+    new_image_path = '../resource/test_faces/test_1.jpg' # placeholder input path
 
     # Define target size for the image (same as used for training)
     IMG_WIDTH = 224
@@ -43,18 +43,18 @@ def preprocess_input(input_path):
 
 def load_model():
     # Define the path to your saved model
-    model_save_path = '/resource/models/resnet_152_model.keras'
+    model_save_path = '../resource/models/resnet_152_model.keras'
 
     # Load the entire model
     loaded_model = keras.models.load_model(model_save_path)
 
     print(f"Model loaded successfully from: {model_save_path}")
-    loaded_model.summary()
+    print(loaded_model.summary())
     return loaded_model
 
 def make_prediction(model, processed_input):
     # Ensure the preprocessed_img exists before trying to predict
-    if 'preprocessed_img' in locals():
+    if preprocess_input is not None:
         # Make a prediction using the loaded model
         predictions = model.predict(processed_input)
 
@@ -89,3 +89,7 @@ def make_prediction(model, processed_input):
     else:
         print("Cannot make prediction: No image was loaded or preprocessed successfully.")
         return 
+    
+# model = load_model()
+# input = preprocess_input("")
+# make_prediction(model, input)

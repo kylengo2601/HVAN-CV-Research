@@ -20,7 +20,7 @@ def recognize_face():
     try:
         data = request.get_json() # Decide whether to have path or the image itself in the json
         
-        if not data or 'image' not in data:
+        if not data or 'image' not in data:  # {"image": "<base64-encoded-string>"}
             return jsonify({'error': 'No image provided'}), 400
         
         results = []
