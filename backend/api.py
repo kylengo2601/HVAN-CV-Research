@@ -15,7 +15,7 @@ app = Flask(__name__)
 CORS(app)
 
 
-@app.route('/api/recognize-face', methods=['POST'])
+@app.route('/api/analyze', methods=['POST'])
 def recognize_face():
     try:
         data = request.get_json() # Decide whether to have path or the image itself in the json
