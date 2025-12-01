@@ -1,18 +1,10 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { ModelSelector } from './components/ModelSelector';
 import { ModelArchitecture, AnalysisState } from './types';
 import { analyzeImageWithModel } from './services/imageAnalyzer';
-import { Upload, X, Camera, AlertCircle, Loader2, Aperture, User, Activity, Layers, Terminal, Sparkles, Fingerprint } from 'lucide-react';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
-
-// Helper component for result items
-const ResultItem = ({label, value}: {label: string, value: string}) => (
-    <div className="space-y-2">
-        <span className="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-widest">{label}</span>
-        <div className="text-xl sm:text-2xl text-white font-light tracking-tight break-words">{value}</div>
-    </div>
-);
+import { Upload, X, Camera, AlertCircle, Loader2, Aperture, Clock } from 'lucide-react';
 
 export default function App() {
   const [selectedModel, setSelectedModel] = useState<ModelArchitecture>(ModelArchitecture.VIT);
@@ -138,17 +130,6 @@ export default function App() {
     }
   };
 
-  // Prepare data for charts if result exists
-  const confidenceData = analysis.result ? [
-    { name: 'Độ tin cậy', value: analysis.result.confidence * 100 },
-    { name: 'Không chắc chắn', value: (1 - analysis.result.confidence) * 100 },
-  ] : [];
-
-  const embeddingData = analysis.result ? analysis.result.modelSpecifics.embeddingVector.map((val, idx) => ({
-    feature: `Chiều ${idx + 1}`,
-    value: Math.abs(val),
-  })) : [];
-
   return (
     <div className="min-h-screen pb-20 font-sans selection:bg-primary/30 selection:text-white">
       <Navbar />
@@ -158,10 +139,10 @@ export default function App() {
         {/* Intro Section */}
         <div className="mb-12 text-center max-w-2xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-            Kiểm Chuẩn Các Kiến Trúc <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Computer Vision</span>
+            Hệ Thống <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Định Danh</span>
           </h2>
           <p className="text-gray-400 text-lg">
-            Tải lên hình ảnh hoặc sử dụng camera để đánh giá hiệu suất nhận diện khuôn mặt trên ba kiến trúc hiện đại nhất.
+            Tải lên hình ảnh hoặc sử dụng camera để nhận diện danh tính.
           </p>
         </div>
 
@@ -322,24 +303,24 @@ export default function App() {
             >
               {analysis.isLoading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="animate-spin w-5 h-5" /> Đang xử lý...
+                  <Loader2 className="animate-spin w-5 h-5" /> Đang nhận diện...
                 </span>
               ) : (
-                "Chạy Suy Luận"
+                "Xác Định Danh Tính"
               )}
             </button>
           </div>
 
           {/* RIGHT COLUMN: Results */}
           <div className="lg:col-span-8">
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Kết Quả Sau Xử Lý</h2>
+            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Kết Quả Định Danh</h2>
             
             {!analysis.result && !analysis.isLoading && !analysis.error && (
               <div className="h-[500px] border border-gray-800 rounded-xl bg-surfaceHighlight flex flex-col items-center justify-center text-gray-600">
                 <div className="w-16 h-16 mb-4 rounded-full bg-black/30 flex items-center justify-center">
                   <Aperture className="w-8 h-8 opacity-50" />
                 </div>
-                <p>Chọn mô hình và tải ảnh (hoặc chụp ảnh) để bắt đầu.</p>
+                <p>Chọn mô hình và tải ảnh để bắt đầu định danh.</p>
               </div>
             )}
 
@@ -349,8 +330,8 @@ export default function App() {
                     <div className="absolute inset-0 border-t-4 border-primary rounded-full animate-spin"></div>
                     <div className="absolute inset-2 border-r-4 border-secondary rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Đang phân tích đặc trưng...</h3>
-                  <p className="text-gray-500 font-mono text-sm">Đang truyền tensor qua {selectedModel}...</p>
+                  <h3 className="text-xl font-bold text-white mb-2">Đang xử lý hình ảnh...</h3>
+                  <p className="text-gray-500 font-mono text-sm">Đang trích xuất đặc trưng và so khớp...</p>
                </div>
             )}
 
@@ -358,135 +339,59 @@ export default function App() {
                <div className="p-6 border border-red-900/50 bg-red-900/10 rounded-xl text-red-200 flex items-start gap-4">
                  <AlertCircle className="w-6 h-6 shrink-0 mt-1" />
                  <div>
-                   <h3 className="font-bold mb-1">Suy Luận Thất Bại</h3>
+                   <h3 className="font-bold mb-1">Định Danh Thất Bại</h3>
                    <p className="text-sm opacity-80">{analysis.error}</p>
                  </div>
                </div>
             )}
 
             {analysis.result && (
-              <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {/* 1. Primary Result Section - The "Answer" */}
-                <div className="glass-panel rounded-xl p-6 border-l-4 border-l-primary relative overflow-hidden group">
-                  <div className="absolute -top-10 -right-10 p-4 opacity-5 group-hover:opacity-10 transition-opacity rotate-12">
-                      <User className="w-64 h-64 text-primary" />
-                  </div>
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="glass-panel p-8 rounded-xl border border-gray-800 flex flex-col items-center text-center bg-surfaceHighlight/50">
                   
-                  <div className="relative z-10">
-                      <div className="flex items-center gap-3 mb-8">
-                          <div className="p-2 bg-primary/20 rounded-lg text-primary ring-1 ring-primary/50">
-                              <Fingerprint className="w-6 h-6"/>
-                          </div>
-                          <div>
-                              <h3 className="text-xl font-bold text-white">Phân Tích Chủ Thể</h3>
-                              <p className="text-xs text-gray-500 font-mono">ID: {selectedModel.split(' ')[0].toUpperCase()}-{Date.now().toString().slice(-4)}</p>
-                          </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-                          <ResultItem label="Giới tính" value={analysis.result.primaryFace.gender} />
-                          <ResultItem label="Độ tuổi" value={analysis.result.primaryFace.ageRange} />
-                          <ResultItem label="Cảm xúc" value={analysis.result.primaryFace.emotion} />
-                          <ResultItem label="Sắc tộc" value={analysis.result.primaryFace.ethnicity} />
-                      </div>
-
-                      <div className="mt-8 pt-6 border-t border-gray-800/50">
-                          <div className="flex items-center gap-2 mb-3">
-                              <Sparkles className="w-4 h-4 text-yellow-500" />
-                              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Phụ kiện & Đặc điểm</span>
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                              {analysis.result.primaryFace.accessories.length > 0 ? (
-                                  analysis.result.primaryFace.accessories.map((acc, i) => (
-                                      <span key={i} className="px-3 py-1.5 rounded-full bg-surfaceHighlight border border-white/10 text-sm text-gray-300 hover:border-primary/50 transition-colors cursor-default">
-                                          {acc}
-                                      </span>
-                                  ))
-                              ) : (
-                                  <span className="text-sm text-gray-600 italic pl-2">Không phát hiện phụ kiện đặc biệt</span>
-                              )}
-                          </div>
-                      </div>
+                  {/* The Input Image Displayed Again */}
+                  <div className="relative w-full max-w-sm rounded-lg overflow-hidden border-2 border-primary/30 shadow-[0_0_30px_rgba(0,242,255,0.15)] mb-8 group">
+                     {previewUrl && (
+                       <img 
+                         src={previewUrl} 
+                         alt="Identified Subject" 
+                         className="w-full h-auto object-cover"
+                       />
+                     )}
+                     
+                     {/* Overlay Effect */}
+                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-40"></div>
+                     
+                     {/* Scanning Line Animation (Optional aesthetic) */}
+                     <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none opacity-20">
+                       <div className="w-full h-1 bg-primary shadow-[0_0_15px_#00f2ff] animate-scan"></div>
+                     </div>
                   </div>
-                </div>
 
-                {/* 2. Metrics & Visualizations */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    {/* Confidence */}
-                    <div className="glass-panel p-6 rounded-xl flex flex-col min-h-[280px]">
-                        <div className="flex justify-between items-start mb-6">
-                            <div>
-                                <h4 className="font-semibold text-white flex items-center gap-2">
-                                    <Activity className="w-4 h-4 text-blue-400" /> Độ Tin Cậy
-                                </h4>
-                                <p className="text-xs text-gray-500 mt-1">Điểm xác suất Softmax</p>
-                            </div>
-                            <span className="text-3xl font-mono font-bold text-primary tracking-tighter">
-                                {(analysis.result.confidence * 100).toFixed(1)}%
-                            </span>
-                        </div>
-                        <div className="flex-1 w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={confidenceData} layout="vertical" margin={{left: 0, right: 30, top: 10, bottom: 10}}>
-                                    <XAxis type="number" hide domain={[0, 100]} />
-                                    <YAxis dataKey="name" type="category" width={110} tick={{fill: '#9ca3af', fontSize: 11, fontWeight: 500}} axisLine={false} tickLine={false} />
-                                    <Tooltip 
-                                      cursor={{fill: 'rgba(255,255,255,0.05)'}} 
-                                      contentStyle={{backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#fff'}} 
-                                    />
-                                    <Bar dataKey="value" barSize={28} radius={[0, 6, 6, 0]} background={{ fill: 'rgba(255,255,255,0.05)' }}>
-                                      {confidenceData.map((e, i) => <Cell key={i} fill={i===0 ? '#00f2ff' : '#4b5563'} />)}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
+                  {/* Identification Result */}
+                  <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-[0.2em] mb-3">Kết Quả Định Danh</h3>
+                  <div className="text-5xl md:text-6xl font-black text-white tracking-tight leading-tight mb-6">
+                    {analysis.result.name}
+                  </div>
+
+                  {/* Confidence Display */}
+                  {analysis.result.confidence !== undefined && analysis.result.confidence > 0 && (
+                    <div className="flex flex-col items-center animate-pulse">
+                      <div className="text-4xl font-mono font-bold text-primary drop-shadow-[0_0_10px_rgba(0,242,255,0.5)]">
+                        {(analysis.result.confidence * 100).toFixed(1)}%
+                      </div>
+                      <div className="text-xs text-primary/70 uppercase tracking-widest mt-1">Độ Tin Cậy</div>
                     </div>
-
-                    {/* Vector Map */}
-                    <div className="glass-panel p-6 rounded-xl flex flex-col min-h-[280px]">
-                        <div className="flex justify-between items-start mb-2">
-                            <div>
-                                <h4 className="font-semibold text-white flex items-center gap-2">
-                                    <Layers className="w-4 h-4 text-purple-400" /> Vector Đặc Trưng
-                                </h4>
-                                <p className="text-xs text-gray-500 mt-1">Biểu diễn Embeddings</p>
-                            </div>
-                        </div>
-                        <div className="flex-1 w-full -ml-4">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <RadarChart cx="50%" cy="50%" outerRadius="70%" data={embeddingData}>
-                                    <PolarGrid stroke="#374151" strokeDasharray="3 3" />
-                                    <PolarAngleAxis dataKey="feature" tick={{ fill: '#9ca3af', fontSize: 10 }} />
-                                    <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={false} axisLine={false} />
-                                    <Radar name="Feature" dataKey="value" stroke="#8b5cf6" strokeWidth={2} fill="#8b5cf6" fillOpacity={0.3} />
-                                    <Tooltip contentStyle={{backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#fff'}} />
-                                </RadarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
+                  )}
+                  
+                  {/* Processing Time Footnote
+                   {(analysis.result.processingTimeMs || 0) > 0 && (
+                      <div className="mt-8 pt-6 border-t border-gray-800 w-full flex justify-center text-xs font-mono text-gray-600 gap-2">
+                        <Clock className="w-3 h-3" />
+                        Thời gian xử lý: {analysis.result.processingTimeMs}ms
+                      </div>
+                   )} */}
                 </div>
-
-                {/* 3. Tech Footer */}
-                <div className="glass-panel p-4 rounded-xl border border-gray-800 bg-black/40">
-                    <div className="flex flex-col sm:flex-row items-start gap-4">
-                        <div className="p-2.5 bg-gray-900 rounded-lg shrink-0 border border-gray-800 hidden sm:block">
-                            <Terminal className="w-5 h-5 text-gray-500" />
-                        </div>
-                        <div className="flex-1 min-w-0 w-full">
-                            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-gray-500 mb-3 font-mono border-b border-gray-800 pb-2">
-                                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> ARCH: {selectedModel}</span>
-                                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> TIME: {analysis.result.modelSpecifics.processingTimeMs}ms</span>
-                                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-purple-500"></span> FACES: {analysis.result.detectedFaces}</span>
-                            </div>
-                            <div className="font-mono text-xs text-green-400/90 break-words whitespace-pre-wrap bg-black/50 p-3 rounded-lg border border-gray-800/50">
-                                <span className="opacity-50 select-none mr-2">$</span>
-                                {analysis.result.modelSpecifics.technicalLog}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
               </div>
             )}
           </div>

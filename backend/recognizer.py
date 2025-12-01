@@ -5,7 +5,7 @@ import os
 
 
 def preprocess_input(input_path):
-    new_image_path = '../resource/test_faces/test_1.jpg' # placeholder input path
+    new_image_path = '../resource/test_faces/test_2.jpg' # placeholder input path
 
     # Define target size for the image (same as used for training)
     IMG_WIDTH = 224

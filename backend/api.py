@@ -23,7 +23,6 @@ def recognize_face():
         if not data or 'image' not in data:  # {"image": "<base64-encoded-string>"}
             return jsonify({'error': 'No image provided'}), 400
         
-        results = []
         # Preprocess input
         processed_face = preprocess_input("input_placeholder") # input path here
         
@@ -33,16 +32,12 @@ def recognize_face():
         # Predict
         predicted_name, confidence = make_prediction(model, processed_face)
         
-        results.append({
+        result = {
             'name': predicted_name,
             'confidence': float(confidence),
-        })
+        }
 
-        return jsonify({
-            'success': True,
-            'faces': results,
-            'timestamp': datetime.now().isoformat()
-        })
+        return jsonify(result)
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
